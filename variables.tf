@@ -87,7 +87,6 @@ variable "report_bucket_arn" {
 variable "awscli_version" {
   default = "1.10.64"
 }
-
 variable "client_name" {
   default = "CLIENT"
 }

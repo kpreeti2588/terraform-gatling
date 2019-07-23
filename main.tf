@@ -22,9 +22,9 @@ data "template_file" "userdata" {
     run_description    = "Instance Type - ${var.instance_type}: Simulation Name - ${var.simulation_name}: Gatling Version ${var.gatling_version} - ${var.run_description}"
     awscli_version     = "${var.awscli_version}"
     gatling_java_opts  = "${var.gatling_java_opts}"
-    client_name        = "${var.client_name}"
     network           = "${var.network}"
     report_date        = "${timestamp()}"
+    client_name        = "${var.client_name}"
   }
 }
 
