@@ -111,7 +111,7 @@ coreos:
           -s ${simulation_name} -rd "${run_description}"
         ExecStart=/usr/bin/sh -c '/usr/bin/docker run --rm \
           -v /home/core/gatling-scenario/${gatling_scenario_location}results/`ls -1 /home/core/gatling-scenario/${gatling_scenario_location}results/`:/gatling/report/ \
-          tmhub.io/aws/aws-cli:${awscli_version} s3 sync /gatling/report/ s3://${report_bucket}/${environment_tag}-${simulation_name}-${report_date}-$RANDOM --grants read=id=03de85ae46e0bd6886fd7d3ac848326d0e70de7ff2d291310c26e0b45ebba038'
+          tmhub.io/aws/aws-cli:${awscli_version} s3 sync /gatling/report/ s3://${report_bucket}/${client_name}-${simulation_name}-${report_date}-$RANDOM --grants read=id=03de85ae46e0bd6886fd7d3ac848326d0e70de7ff2d291310c26e0b45ebba038'
     - name: instance-stop.service
       command: start
       runtime: true

@@ -3,7 +3,7 @@ output "follow" {
 }
 
 output "report-server" {
-  value = "http://gatling-reports.tmaws.io?simulation=${var.simulation_name}&env=${var.environment_tag}"
+  value = "http://gatling-reports.tmaws.io?simulation=${var.simulation_name}&env=${var.client_name}"
 }
 
 output "Additional_Help" {
