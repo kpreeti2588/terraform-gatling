@@ -1,15 +1,15 @@
 # DO NOT CHANGE
-aws_profile = "tm-prod-Ops-Techops"
-terraformer_bucket = "terraform.prod1.us-west-2.tmaws"
+aws_profile = "tm-pci-Ops-Techops"
+terraformer_bucket = "terraform.pci1.us-east-1.tmaws"
 
 # Your Terraform Variables
 # See Naming Standard: https://contegixapp1.livenation.com/confluence/display/AWS/Naming+Standards
 
 aws_region = "us-west-2"
-account_tag = "tm-prod"
+account_tag = "tm-pci"
 product_code_tag = "PRD214"
 inventory_code_tag = "gatling"
-environment_tag = "preprod1"
+#environment_tag = "preprod1"
 vpc = "preprodpci"
 tier = "app"
 availability_zone = "us-west-2a"
