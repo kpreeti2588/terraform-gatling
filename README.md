@@ -1,1 +1,2 @@
-Run Load Testing on EC2 
+To launch multiple containers,<br/><br/>
+./createContainers.sh preprodpci cable "-Dthreads=15 -Dblocks=15 -Drampup=1350 -DrunType=circular -Dhost=https://stg1-am.ticketmaster.com/eastsite" 4 automationenvtag

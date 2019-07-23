@@ -88,6 +88,10 @@ variable "awscli_version" {
   default = "1.10.64"
 }
 
+variable "client_name" {
+  default = "CLIENT"
+}
+
 variable "network" {
   default = "bridge"
 }
