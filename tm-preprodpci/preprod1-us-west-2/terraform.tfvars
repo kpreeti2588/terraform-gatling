@@ -10,7 +10,7 @@ account_tag = "tm-prod"
 product_code_tag = "PRD214"
 inventory_code_tag = "gatling"
 environment_tag = "preprod1"
-vpc = "preprodpci"
+vpc = "preprod"
 tier = "app"
 availability_zone = "us-west-2a"
 
