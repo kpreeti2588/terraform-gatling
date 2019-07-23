@@ -1,0 +1,75 @@
+#cloud-config
+write_files:
+  - path: /etc/systemd/system/docker.service.d/increase-ulimit.conf
+    owner: core:core
+    permissions: 0644
+    content: |
+      [Service]
+      LimitNOFILE=1048576
+  - path: "/aws/config"
+    permissions: "0644"
+    owner: "root"
+    content: |
+      [default]
+      s3 =
+          signature_version = s3v4
+  - path: "/aws/credentials"
+    permissions: "0644"
+    owner: "root"
+coreos:
+  update:
+    reboot-strategy: off
+  units:
+    ## Journal Debug settings
+    ## Uncomment below to see Journald logs live on the instance via port: 19531
+    - name: systemd-journal-gatewayd.socket
+      command: start
+      enable: yes
+    - name: systemd-journal-gatewayd.service
+      command: start
+      enable: yes
+    - name: cadvisor.service
+      command: start
+      runtime: true
+      content: |
+        [Unit]
+        Description=cadvisor
+        [Service]
+        Restart=on-failure
+        RestartSec=30
+        RestartPreventExitStatus=5
+        SyslogIdentifier=cadvisor
+        ExecStartPre=-/usr/bin/mkdir -p /srv/cadvisor
+        ExecStartPre=-/usr/bin/wget -O /srv/cadvisor/cadvisor ${cadvisor_url}
+        ExecStartPre=-/usr/bin/chmod +x /srv/cadvisor/cadvisor
+        ExecStart=/srv/cadvisor/cadvisor -port ${cadvisor_port}
+    - name: gatling.service
+      command: start
+      runtime: true
+      content: |
+        [Unit]
+        Description=gatling
+        Before=instance-stop.service
+        [Service]
+        TimeoutSec=${max_runtime}
+        ExecStartPre=/usr/bin/sh -c 'rm -fr /home/core/gatling-scenario'
+        ExecStartPre=/usr/bin/git clone -b ${gatling_scenario_branch} ${gatling_scenario_repo} /home/core/gatling-scenario
+        ExecStartPre=/usr/bin/sh -c 'if [ ! -z "${gatling_scenario_git_commit}" ]; then \
+          cd /home/core/gatling-scenario; /usr/bin/git checkout ${gatling_scenario_git_commit}; \
+          fi'
+        ExecStartPre=/usr/bin/docker pull tmhub.io/aws/gatling:${gatling_version}
+        ExecStartPre=/usr/bin/docker pull tmhub.io/aws/aws-cli:${awscli_version}
+        ExecStartPre=/usr/bin/sh -c 'chmod +x /home/core/gatling-scenario/set_docker_network.sh'
+        ExecStartPre=/usr/bin/sh -c '/home/core/gatling-scenario/set_docker_network.sh'
+        ExecStartPre=/usr/bin/docker run --rm \
+          -e JAVA_OPTS="${gatling_java_opts}" \
+          --name gatling \
+          --network=${network} \
+          -v /home/core/gatling-scenario/${gatling_scenario_location}conf/:/opt/gatling/conf \
+          -v /home/core/gatling-scenario/${gatling_scenario_location}results:/opt/gatling/results \
+          -v /home/core/gatling-scenario/${gatling_scenario_location}user-files/:/opt/gatling/user-files \
+          tmhub.io/aws/gatling:${gatling_version} \
+          -s ${simulation_name} -rd "${run_description}"
+        ExecStart=/usr/bin/sh -c '/usr/bin/docker run --rm \
+          -v /home/core/gatling-scenario/${gatling_scenario_location}results/`ls -1 /home/core/gatling-scenario/${gatling_scenario_location}results/`:/gatling/report/ \
+          tmhub.io/aws/aws-cli:${awscli_version} s3 sync /gatling/report/ s3://${report_bucket}/${environment_tag}-${simulation_name}-${report_date}-$RANDOM --grants read=id=03de85ae46e0bd6886fd7d3ac848326d0e70de7ff2d291310c26e0b45ebba038'
